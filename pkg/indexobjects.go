@@ -2,14 +2,14 @@ package indexobjects
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/operator-framework/operator-registry/alpha/action"
 	"github.com/operator-framework/operator-registry/alpha/declcfg"
+	"github.com/operator-framework/operator-registry/alpha/model"
 )
 
-func processRefs(refs []string, filter []string) (*declcfg.DeclarativeConfig, error) {
-	var result *declcfg.DeclarativeConfig
+func ProcessRefs(refs []string, filter []string) (model.Model, error) {
+
 	render := action.Render{
 		//Refs:           []string{"registry.redhat.io/redhat/redhat-operator-index:v4.9"},
 		Refs:           refs,
@@ -18,12 +18,20 @@ func processRefs(refs []string, filter []string) (*declcfg.DeclarativeConfig, er
 	}
 	config, err := render.Run(context.TODO())
 	if err != nil {
-		return result, err
+		return model.Model{}, err
 	}
-	for _, item := range config.Channels {
-		fmt.Println(">>>>>>>>>")
-		fmt.Printf("%s - %s\n", item.Name, item.Package)
-		fmt.Printf("%v\n", item.Entries)
+
+	return filterConfig(config, filter)
+}
+
+func filterConfig(config *declcfg.DeclarativeConfig, filter []string) (model.Model, error) {
+	var m = model.Model{}
+	fullModel, err := declcfg.ConvertToModel(*config)
+	if err != nil {
+		return m, err
 	}
-	return result, nil
+	for _, item := range filter {
+		m[item] = fullModel[item]
+	}
+	return m, nil
 }

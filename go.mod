@@ -2,14 +2,12 @@ module github.com/vitus133/olm-extract
 
 go 1.17
 
-require github.com/vitus133/olm-extract/pkg/indexobjects v0.0.0
-replace github.com/vitus133/olm-extract/pkg/indexobjects:v0.0.0 => ./pkg/indexobjects.go
-
 require (
 	github.com/operator-framework/operator-registry v1.19.5
 	github.com/spf13/cobra v1.3.0
 )
-
+//require github.com/vitus133/olm-extract/pkg/indexobjects v0.0.0
+replace github.com/vitus133/olm-extract/pkg => ./pkg
 require (
 	github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 // indirect
 	github.com/Microsoft/go-winio v0.4.16 // indirect

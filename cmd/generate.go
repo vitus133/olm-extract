@@ -16,7 +16,12 @@ limitations under the License.
 package cmd
 
 import (
+	"fmt"
+	"strings"
+
+	"github.com/operator-framework/operator-registry/alpha/model"
 	"github.com/spf13/cobra"
+	idxo "github.com/vitus133/olm-extract/pkg"
 )
 
 // generateCmd represents the generate command
@@ -29,12 +34,30 @@ var generateCmd = &cobra.Command{
     If current packages versions are provided, the latest upgradable version
     is selected from the channel metadata. If not, latest version in the channel is selected.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		packages, err := cmd.Flags().GetStringArray("packages-and-channels")
+		packagesAndChannels, err := cmd.Flags().GetStringArray("packages-and-channels")
+		packages := make(map[string]string)
+		var filter []string
+		for _, pkg := range packagesAndChannels {
+			pc := strings.Split(pkg, ":")
+			packages[pc[0]] = pc[1]
+			filter = append(filter, pc[0])
+		}
 		cobra.CheckErr(err)
 		indexes, err := cmd.Flags().GetStringArray("indexes")
 		cobra.CheckErr(err)
-		result, err := indexobjects.processRefs(indexes, packages)
+		// Result is *declcfg.DeclarativeConfig concatenated from all
+		// indexes and filtered by packages nd channels provided
+		var model model.Model
+		model, err = idxo.ProcessRefs(indexes, filter)
+		cobra.CheckErr(err)
+		for p, c := range packages {
+			fmt.Println(">>>>>>>>>")
+			currentPkg := model[p]
+			fmt.Printf("%+v\n", currentPkg.Channels[c].Name)
+			fmt.Printf("%+v\n", currentPkg.Channels[c].Package.Channels["stable"].Bundles)
+			fmt.Printf("%+v\n", currentPkg.Channels[c].Bundles)
 
+		}
 	},
 }
 
