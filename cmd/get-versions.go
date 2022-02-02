@@ -55,7 +55,8 @@ var getCurrentCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(getCurrentCmd)
-	getCurrentCmd.Flags().StringArray("packages", []string{}, "A help for packages")
+	getCurrentCmd.Flags().StringArray("packages", []string{},
+		"A list of comma-separated operator package names")
 	getCurrentCmd.MarkFlagRequired("packages")
 
 }
