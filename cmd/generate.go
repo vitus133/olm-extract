@@ -16,8 +16,6 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 )
 
@@ -25,12 +23,18 @@ import (
 var generateCmd = &cobra.Command{
 	Use:   "generate",
 	Short: "Generates the images pull list",
-	Long: `Generates the list of image pull specifications based on required 
+	Long: `
+    Generates a list of image pull specifications based on the required 
     packages + channels and optionally current package versions. 
     If current packages versions are provided, the latest upgradable version
     is selected from the channel metadata. If not, latest version in the channel is selected.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("generate called")
+		packages, err := cmd.Flags().GetStringArray("packages-and-channels")
+		cobra.CheckErr(err)
+		indexes, err := cmd.Flags().GetStringArray("indexes")
+		cobra.CheckErr(err)
+		result, err := indexobjects.processRefs(indexes, packages)
+
 	},
 }
 
